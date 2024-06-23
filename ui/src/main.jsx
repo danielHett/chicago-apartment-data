@@ -6,7 +6,7 @@ import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Statistics from './pages/Statistics/Statistics';
 import './Main.css';
 import Root from './pages/Root';
-import { theme } from './Theme';
+import { theme } from './theme';
 
 const router = createBrowserRouter([
   {
