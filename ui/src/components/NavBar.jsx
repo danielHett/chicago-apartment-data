@@ -8,11 +8,11 @@ import NavButton from './NavButton';
 const buttons = [
   {
     label: 'Home',
-    pathPart: '/',
+    path: '/',
   },
   {
     label: 'Statistics',
-    pathPart: '/stats',
+    path: '/stats',
   },
 ];
 
