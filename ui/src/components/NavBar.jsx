@@ -1,6 +1,20 @@
 import Box from '@mui/material/Box';
 import Typography from '@mui/material/Typography';
 import Paper from '@mui/material/Paper';
+import Logo from './Logo';
+import Stack from '@mui/material/Stack';
+import NavButton from './NavButton';
+
+const buttons = [
+  {
+    label: 'Home',
+    pathPart: '/',
+  },
+  {
+    label: 'Statistics',
+    pathPart: '/stats',
+  },
+];
 
 export default function NavBar() {
   return (
@@ -8,7 +22,7 @@ export default function NavBar() {
       sqaure={true}
       variant="outlined"
       className="header"
-      sx={{ width: '100%', height: '10%', background: '#ededed' }}
+      sx={{ width: '100%', height: '83px', background: '#ededed', marginBottom: '10px' }}
     >
       <Box
         className="header__container"
@@ -16,16 +30,19 @@ export default function NavBar() {
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          padding: '1.65rem 0',
           paddingLeft: '1.25rem',
           paddingRight: '1.25rem',
+          height: '100%',
           maxHeight: '100%',
           boxSizing: 'border-box',
         }}
       >
-        <Typography variant="h5" sx={{ maxHeight: '100%' }}>
-          chicago-apartment-data
-        </Typography>
+        <Logo />
+        <Stack spacing={2} direction="row">
+          {buttons.map((button) => {
+            return NavButton(button);
+          })}
+        </Stack>
       </Box>
     </Paper>
   );
