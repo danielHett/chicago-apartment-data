@@ -22,7 +22,7 @@ export default function NavBar() {
       sqaure={true}
       variant="outlined"
       className="header"
-      sx={{ width: '100%', height: '83px', background: '#ededed', marginBottom: '10px' }}
+      sx={{ width: '100%', height: '83px', backgroundColor: 'primary.main', marginBottom: '10px' }}
     >
       <Box
         className="header__container"

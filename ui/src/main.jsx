@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { ThemeProvider } from '@mui/material/styles';
 import Home from './pages/Home';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
-import Statistics from './pages/Statistics';
+import Statistics from './pages/Statistics/Statistics';
 import './Main.css';
 import Root from './pages/Root';
 import { theme } from './Theme';

@@ -11,10 +11,15 @@ export const theme = createTheme({
       default: '#fff',
     },
     primary: {
-      main: '#0F1108',
+      main: '#ededed',
     },
     secondary: {
-      main: '#E8DB7D',
+      main: '#4a4a4a',
+    },
+  },
+  typography: {
+    allVariants: {
+      color: '#4a4a4a',
     },
   },
 });
