@@ -56,7 +56,7 @@ def create_primary_key(address_parts):
 
 def create_secondary_key(address_parts):
     # if there isn't a unit number, then there can't be multiple units in one building. For now let's ignore sec_unit_type. 
-    return address_parts['sec_unit_num'] if 'sec_unit_num' in address_parts else None 
+    return address_parts['sec_unit_num'] if 'sec_unit_num' in address_parts else 'NONE' 
 
 
 def parse_beds(soup):

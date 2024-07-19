@@ -12,7 +12,7 @@ this is a helper function for parsing unit soup into usable information.
 def parse_unit(soup):
     unit = {}
     
-    unit['price'] = parse_price(soup)
+    unit['current_price'] = parse_price(soup)
     unit |= parse_address(soup)
     unit['num_beds'] = parse_beds(soup)
     unit['num_baths'] = parse_baths(soup)
