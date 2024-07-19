@@ -13,7 +13,7 @@ def parse_unit(soup):
     unit = {}
     
     unit['price'] = parse_price(soup)
-    unit['address'] = parse_address(soup)
+    unit |= parse_address(soup)
     unit['num_beds'] = parse_beds(soup)
     unit['num_baths'] = parse_baths(soup)
 

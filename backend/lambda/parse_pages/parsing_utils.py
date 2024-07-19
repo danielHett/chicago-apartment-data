@@ -14,7 +14,10 @@ def parse_price(soup):
     # Then, convert to an integer. 
     return int(raw_price_text.replace(",", "").replace("$", "").strip())
 
+# Returns a dictionary of address information. 
 def parse_address(soup):
+    address_information = {}
+    
     try:
         raw_address_text = soup.find(attrs={"class": "lb__address"}).text
     except Exception as e:
@@ -22,8 +25,39 @@ def parse_address(soup):
 
     address_text = raw_address_text.strip()
 
-    # Parse the address. 
-    return parse_location(address_text)
+    address_information['full_address'] = address_text
+
+    # Break up the address into parts 
+    address_parts = parse_location(address_text)
+
+    address_information['primary_key'] = create_primary_key(address_parts)
+    address_information['secondary_key'] = create_secondary_key(address_parts)
+    
+    # We get the neighborhood raw text. 
+    try:
+        neighborhood_soups = soup.find(attrs={"class": "lb__hoods lb__row"}).find_all("a")
+        neighborhood_raw_texts = [neighborhood_soup.text for neighborhood_soup in neighborhood_soups]
+    except Exception as e:
+        raise 
+    
+    address_information['neighborhoods'] = [neighborhood_raw_text.strip().lower() for neighborhood_raw_text in neighborhood_raw_texts]
+
+    return address_information
+
+def create_primary_key(address_parts):
+    primary_key = address_parts['number'] if 'number' in address_parts else ''
+    primary_key += f' {address_parts['prefix']}' if 'prefix' in address_parts else ''
+    primary_key += f' {address_parts['street']}' if 'street' in address_parts else ''
+    primary_key += f' {address_parts['type']}' if 'type' in address_parts else ''
+    primary_key += f' {address_parts['city']}' if 'city' in address_parts else ''
+    primary_key += f' {address_parts['zip']}' if 'zip' in address_parts else ''
+
+    return primary_key
+
+def create_secondary_key(address_parts):
+    # if there isn't a unit number, then there can't be multiple units in one building. For now let's ignore sec_unit_type. 
+    return address_parts['sec_unit_num'] if 'sec_unit_num' in address_parts else None 
+
 
 def parse_beds(soup):
     try:

@@ -1,7 +1,7 @@
 import logging
 import requests
 from bs4 import BeautifulSoup
-import utils
+from parse_unit import *
 
 logger = logging.getLogger()
 logger.setLevel("INFO")
@@ -23,7 +23,7 @@ def handler(event, context):
         
         try:
             soup = BeautifulSoup(requests.get(link).text, "html.parser")
-            unit = utils.parse_unit(soup)
+            unit = parse_unit(soup)
         except:
             logger.error('something went wrong, moving on to the next link')
             continue
