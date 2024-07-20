@@ -2,9 +2,16 @@ import logging
 import requests
 from bs4 import BeautifulSoup
 from parse_unit import *
+import threading
 
 logger = logging.getLogger()
 logger.setLevel("INFO")
+
+def get_soup(link, soups):
+    try:
+        soups.append(BeautifulSoup(requests.get(link).text, "html.parser"))
+    except Exception as e:
+        logger.error('Failed to either (1) fetch the page or (2) parse it with bs4')
 
 """
 this lambda takes an array of links in the event object and updates a table. 
@@ -17,13 +24,21 @@ def handler(event, context):
         raise Exception('the field \'links\' must be included in the request event')
     
     links = event['links']
-    units = []
+    soups = []
+    threads = []
     for link in links:
+        baby_thread = threading.Thread(target=get_soup, args=(link,soups))
+        baby_thread.start()
+        threads.append(baby_thread)
+
+    for daddy_thread in threads:
+        daddy_thread.join()
+
+    units = []
+    for soup in soups:
         logger.info('start processing the following link: ' + link)
         
         try:
-            soup = BeautifulSoup(requests.get(link).text, "html.parser")
-
             # There are two different types of pages. We don't process multi-unit pages (yet). 
             if len(soup.find_all(attrs={"class": "units"})) != 0:
                 logger.info('this was a multi-unit page. skipping.')
