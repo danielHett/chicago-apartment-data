@@ -1,5 +1,4 @@
 import logging
-from scourgify import normalize_address_record
 
 logger = logging.getLogger()
 logger.setLevel("INFO")
@@ -26,12 +25,6 @@ def parse_address(soup):
     address_text = raw_address_text.strip()
 
     address_information['full_address'] = address_text
-
-    # Break up the address into parts 
-    address_parts = normalize_address_record(address_text)
-
-    address_information['primary_key'] = create_primary_key(address_parts)
-    address_information['secondary_key'] = create_secondary_key(address_parts)
     
     # We get the neighborhood raw text. 
     try:
@@ -44,6 +37,8 @@ def parse_address(soup):
 
     return address_information
 
+# This is staying commented out until a better address parsing tool is found. 
+"""
 def create_primary_key(address_parts):
     primary_key = address_parts['address_line_1'] if 'address_line_1' in address_parts else ''
     primary_key += f' {address_parts['city']}' if 'city' in address_parts else ''
@@ -54,7 +49,7 @@ def create_primary_key(address_parts):
 def create_secondary_key(address_parts):
     # if there isn't a unit number, then there can't be multiple units in one building. For now let's ignore sec_unit_type. 
     return address_parts['address_line_2'] if 'address_line_2' in address_parts else 'NONE' 
-
+"""
 
 def parse_beds(soup):
     try:

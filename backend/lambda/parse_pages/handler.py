@@ -2,7 +2,6 @@ import logging
 import requests
 from bs4 import BeautifulSoup
 from parse_unit import *
-from storage_utils import store_unit
 
 logger = logging.getLogger()
 logger.setLevel("INFO")
@@ -18,8 +17,7 @@ def handler(event, context):
         raise Exception('the field \'links\' must be included in the request event')
     
     links = event['links']
-    results = []
-
+    units = []
     for link in links:
         logger.info('start processing the following link: ' + link)
         
@@ -29,32 +27,21 @@ def handler(event, context):
             # There are two different types of pages. We don't process multi-unit pages (yet). 
             if len(soup.find_all(attrs={"class": "units"})) != 0:
                 logger.info('this was a multi-unit page. skipping.')
-                results.append({ 'link': link, 'action': 'skipped', 'reason': 'was multi-unit' })
+                units.append({ 'link': link, 'unit': None, 'failure_reason': 'multi-unit page' })
                 continue
 
             unit = parse_unit(soup)
         except:
             logger.error('something went wrong, moving on to the next link')
-            results.append({ 'link': link, 'action': 'skipped', 'reason': 'error while parsin' })
+            units.append({ 'link': link, 'unit': None, 'failure_reason': 'error while parsing the page' })
             continue
 
-        logger.info(unit)
-
-        logger.info('begin storing in DynamoDB')
-
-        try:
-            action = store_unit(unit)
-        except:
-            logger.error('failed while storing. moving on.')
-            results.append({ 'link': link, 'action': 'skipped', 'reason': 'error while storing' })
-            continue
-
-        results.append({ 'link': link, 'action': action })
+        units.append({ 'link': link, 'unit': unit })
 
         logger.info('processing complete for the following link: ' + link)
 
     # For each link, need to run some code. 
-    return results
+    return units
 
 
 
