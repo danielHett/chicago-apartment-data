@@ -1,5 +1,5 @@
 import logging
-from addresser import parse_location
+from scourgify import normalize_address_record
 
 logger = logging.getLogger()
 logger.setLevel("INFO")
@@ -28,7 +28,7 @@ def parse_address(soup):
     address_information['full_address'] = address_text
 
     # Break up the address into parts 
-    address_parts = parse_location(address_text)
+    address_parts = normalize_address_record(address_text)
 
     address_information['primary_key'] = create_primary_key(address_parts)
     address_information['secondary_key'] = create_secondary_key(address_parts)
@@ -45,18 +45,15 @@ def parse_address(soup):
     return address_information
 
 def create_primary_key(address_parts):
-    primary_key = address_parts['number'] if 'number' in address_parts else ''
-    primary_key += f' {address_parts['prefix']}' if 'prefix' in address_parts else ''
-    primary_key += f' {address_parts['street']}' if 'street' in address_parts else ''
-    primary_key += f' {address_parts['type']}' if 'type' in address_parts else ''
+    primary_key = address_parts['address_line_1'] if 'address_line_1' in address_parts else ''
     primary_key += f' {address_parts['city']}' if 'city' in address_parts else ''
-    primary_key += f' {address_parts['zip']}' if 'zip' in address_parts else ''
+    primary_key += f' {address_parts['postal_code']}' if 'postal_code' in address_parts else ''
 
     return primary_key
 
 def create_secondary_key(address_parts):
     # if there isn't a unit number, then there can't be multiple units in one building. For now let's ignore sec_unit_type. 
-    return address_parts['sec_unit_num'] if 'sec_unit_num' in address_parts else 'NONE' 
+    return address_parts['address_line_2'] if 'address_line_2' in address_parts else 'NONE' 
 
 
 def parse_beds(soup):
