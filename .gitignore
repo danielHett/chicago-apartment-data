@@ -32,3 +32,5 @@ tmp
 scripts/foo.py
 
 data.txt
+
+*terraform.*
