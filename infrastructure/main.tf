@@ -13,7 +13,7 @@ provider "aws" {
   region = "us-east-2"
 }
 
-data "aws_iam_policy_document" "lambda_policy_document" {
+data "aws_iam_policy_document" "lambda_assume_role_document" {
   statement {
     effect = "Allow"
 
@@ -26,9 +26,21 @@ data "aws_iam_policy_document" "lambda_policy_document" {
   }
 }
 
+data "aws_iam_policy_document" "lambda_permissions_document" {
+  statement {
+    effect    = "Allow"
+    actions   = ["s3:GetObject"]
+    resources = ["*"]
+  }
+}
+
 resource "aws_iam_role" "lambda_role" {
   name               = "lambda_role"
-  assume_role_policy = data.aws_iam_policy_document.lambda_policy_document.json
+  assume_role_policy = data.aws_iam_policy_document.lambda_assume_role_document.json
+  inline_policy {
+    name   = "lambda_permissions"
+    policy = data.aws_iam_policy_document.lambda_permissions_document.json
+  }
 }
 
 resource "aws_lambda_function" "parse_pages_lambda" {
