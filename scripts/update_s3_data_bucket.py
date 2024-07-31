@@ -9,6 +9,7 @@ from selenium.webdriver.common.by import By
 import threading
 import boto3
 import json
+import zlib
 
 def process_links(links, processed_units):
     payload = {
@@ -69,7 +70,7 @@ for daddy_thread in threads:
 
 client = boto3.client('s3')
 response = client.put_object(
-    Body=json.dumps(processed_units).encode('utf-8'),
+    Body=zlib.compress(json.dumps(processed_units).encode('utf-8'), level=9),
     Bucket='chicago-apartment-data',
     Key='listing-data'
 )
