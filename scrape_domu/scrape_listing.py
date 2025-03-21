@@ -1,7 +1,26 @@
-import logging
+import re
+import requests
+from bs4 import BeautifulSoup
 
-logger = logging.getLogger()
-logger.setLevel("INFO")
+def scrape_listing(link):
+    # First, we create a soup (🥫). 
+    soup = BeautifulSoup(requests.get(link).text, "html.parser")
+
+    # For now, not parsing multi-unit pages. They are weird. 
+    if len(soup.find_all(attrs={"class": "units"})) != 0:
+        return None
+    
+    return parse_unit(soup)
+
+def parse_unit(soup):
+    unit = {}
+    
+    unit['current_price'] = parse_price(soup)
+    unit |= parse_address(soup)
+    unit['num_beds'] = parse_beds(soup)
+    unit['num_baths'] = parse_baths(soup)
+
+    return unit
 
 def parse_price(soup):
     try: 
@@ -57,11 +76,18 @@ def parse_beds(soup):
     except Exception as e:
         raise
 
-    # For now, we are leaving it as a string. 
-    # TODO: Find a way to make this an integer. 
-    bed_text = raw_bed_text.strip()
+    bed_text = raw_bed_text.strip().lower()
+
+    # Studio is zero bedrooms. 
+    if bed_text == 'studio':
+        return 0
+
+    # If not studio, it is some variation of "n bed", where n is the number of bedrooms. 
+    p = re.compile(r"^[0-9](\.5)? bed(s)?$")
+    if not p.match(bed_text):
+        raise Exception('Encountered an unexpected value for "bed_text": ' + bed_text)
     
-    return bed_text
+    return int(round(float(bed_text.split()[0])))
 
 def parse_baths(soup):
     try:
@@ -69,24 +95,10 @@ def parse_baths(soup):
     except Exception as e:
         raise
 
-    # For now, we are leaving it as a string. 
-    # TODO: Find a way to make this an integer. 
-    bath_text = raw_bath_text.strip()
+    bath_text = raw_bath_text.strip().lower()
+
+    p = re.compile(r"^[0-9](\.5)? bath(s)?$")
+    if not p.match(bath_text):
+        raise Exception('Encountered an unexpected value for "bed_text": ' + bath_text)
     
-    return bath_text
-    
-# Bring this code back later. 
-"""
-    # Get the different info sections. 
-    try:
-        info_sections = soup.find(attrs={"class": "lb__basic"}).find_all("div", recursive=False)
-        for info_section in info_sections:
-            label = info_section.find(attrs={"class": "label"}).text.strip().replace(':', '').lower().replace(' ', '_').replace('-', '_')
-            info = info_section.find(attrs={"class": "label"}).find_next_sibling().text.strip()
-            unit[label] = info
-            
-        
-    except:
-        print('An error')
-"""
-    
+    return int(round(float(bath_text.split()[0])))
