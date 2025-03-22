@@ -32,3 +32,4 @@ data.txt
 *terraform.*
 
 __pycache__
+data
