@@ -2,19 +2,26 @@
 
 import os
 import sys
+import requests
 from bs4 import BeautifulSoup
 from shared_utilities import get_page_html
 import constants
 from threading import Thread, Lock
+import time
 
 # Get back a set of class names for a single listing. 
 def get_classes(listing):
-    # This takes some time. 
+    # This takes some time. Figure out this:
+    # requests.get(listing, headers=constants.REQUEST_HEADERS).text
     html = get_page_html(listing)
 
     # Turn it into some soup. 
     soup = BeautifulSoup(html, "html.parser")
 
+    if soup.find(attrs={'class': 'lb__content'}) is None:
+        print('Something was wrong with ' + listing)
+        return set()
+    
     classes = set()
     for tag in soup.find_all(lambda tag : tag.has_attr('class') and any(['lb__' in c for c in tag['class']])):
         for c in tag['class']:
@@ -30,6 +37,7 @@ def collect_classes(lock, listings, classes):
         # Accessing the shared listings array, so we aquire the lock. 
         lock.acquire()
 
+        print('The number of listings left: ' + str(len(listings)))
         if len(listings) == 0:
             # Release before returning!
             lock.release()
@@ -65,7 +73,7 @@ lock = Lock()
 # This is where all of the classes will be stored. 
 classes = set()
 
-t_count = 8
+t_count = 5
 ts = []
 for i in range(t_count):
     t = Thread(target=collect_classes, args=[lock, listings, classes])
@@ -75,8 +83,12 @@ for i in range(t_count):
 for t in ts:
     t.join()
 
-
 print(classes)
+
+# Now write everything to a file. 
+with open(os.path.join(constants.DATA_FOLDER_PATH, constants.CLASSES_FILE_NAME), "w") as file:
+    for class_name in list(classes):
+        file.write(class_name + '\n')
 
 
 
