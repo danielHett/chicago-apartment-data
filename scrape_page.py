@@ -7,19 +7,30 @@ TODO: Maybe validate the structure of the HTML that we are scraping each field f
 """
 
 """
-The price is structured as so:
+This one is more complicated. Domu has two types of listings:
+    (1) A single unit listing. The price is displayed under the address like so:
 
-<div class="lb__price">
-    <div> $1,980 </div>
-    <span>
-        <div> /MO <div>
-    </span>
-</div>
+        <div class="lb__price">
+            <div> $1,980 </div>
+            <span>
+                <div> /MO <div>
+            </span>
+        </div>
+       
+        To get the bed/baths, we need to look at a different part of the page. 
 
-returns the price, and the interval. 
+        <div class="lb__attributes">
+            <div class="attribute-item bed"><div> ... </div></div>
+            <div class="attribute-item bath"><div> ... </div></div>
+            <div class="attribute-item housing-type"></div>
+        </div>
+
+    (2) Many units are listed. Each unit is stored in a <table> element with class "desktop-units-table". Then, nested under 
+        the table element, there is a <thead> element that gives information on what each column corresponds to. Then each <tbody>
+        contains <tr> elements, which each correspond to a unit. Each <tr> has multiple <td> elements, which correspond to the rows. 
 """
 PRICE_CLASS = 'lb__price'
-def scrape_price(soup):
+def scrape_units(soup):
     # specifically the root of where we want to start looking from, not of the whole document. 
     root_tag = soup.find(attrs={'class': PRICE_CLASS})
 
@@ -61,6 +72,13 @@ def scrape_address(soup):
 
     return root_tag.string.strip()
 
+"""
+Title. 
+
+<h1 class="lb__title">
+    <span> ... </span>
+</h1>
+"""
 TITLE_CLASS = 'lb__title'
 def scrape_title(soup):
     root_tag = soup.find(attrs={'class': TITLE_CLASS})
