@@ -61,6 +61,12 @@ def scrape_address(soup):
 
     return root_tag.string.strip()
 
+TITLE_CLASS = 'lb__title'
+def scrape_title(soup):
+    root_tag = soup.find(attrs={'class': TITLE_CLASS})
+
+    return ' '.join(root_tag.span.string.split())
+
 """
 Call this to get back a dictionary will all listing information. 
 """
@@ -71,5 +77,6 @@ def scrape_page(listing_link):
     return {
         'price_information': scrape_price(soup),
         'hoods': scrape_hoods(soup),
-        'address': scrape_address(soup)
+        'address': scrape_address(soup),
+        'title': scrape_title(soup)
     }
